@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 import asyncpg
 import json
+import asyncio
 
 API_KEY = os.getenv("INGEST_API_KEY")
 PG_DSN = os.getenv("PG_DSN", "postgres://postgres:dev@db:5432/commlogs")
@@ -34,6 +35,7 @@ class LogEvent(BaseModel):
 @app.on_event("startup")
 async def startup():
     global pool
+    await asyncio.sleep(5)
     pool = await asyncpg.create_pool(dsn=PG_DSN, min_size=2, max_size=10)
     logger.info("DB pool created")
 
