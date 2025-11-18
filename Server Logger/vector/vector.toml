@@ -1,0 +1,23 @@
+# Example Vector agent config
+# Tail a file (e.g., nginx access) and ship structured JSON to the collector.
+[sources.nginx]
+type = "file"
+include = ["/var/log/nginx/access.log"]
+ignore_older = 86400
+max_line_bytes = 65536
+
+[transforms.to_json]
+type = "remap"
+inputs = ["nginx"]
+source = '''
+. = { "ts": now(), "source_host": hostname(), "service": "nginx", "raw": .message }
+'''
+
+[sinks.collector]
+type = "http"
+inputs = ["to_json"]
+uri = "http://localhost:8080/ingest"
+method = "post"
+encoding.codec = "json"
+compression = "gzip"
+request.headers = { "X-API-KEY" = "secret123" }

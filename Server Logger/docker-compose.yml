@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev}
+      POSTGRES_DB: ${POSTGRES_DB:-commlogs}
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+
+  collector:
+    build: ./collector
+    environment:
+      PG_DSN: ${PG_DSN:-postgres://postgres:dev@db:5432/commlogs}
+      INGEST_API_KEY: ${INGEST_API_KEY:-secret123}
+    ports: ["8080:8080"]
+    depends_on: [db]
+
+  ui:
+    build: ./ui
+    environment:
+      UI_API_BASE: ${UI_API_BASE:-http://localhost:3000}
+      COLLECTOR_API_BASE: ${COLLECTOR_API_BASE:-http://collector:8080}
+    ports: ["3000:3000"]
+    depends_on: [collector]
+
+volumes:
+  pgdata:
