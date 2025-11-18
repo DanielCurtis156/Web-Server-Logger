@@ -49,12 +49,8 @@ def post_batch(batch):
 
 if __name__ == "__main__":
     print(f"Sending batches to {INGEST_URL} with key {API_KEY}")
-    i=0
     while True:
-        print("deez ",i)
         batch = [gen_event() for _ in range(200)]
-        print("deez %d",i)
-        i+=1
 
         try:
             resp = post_batch(batch)
