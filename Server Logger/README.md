@@ -1,19 +1,19 @@
-# Commlogs Starter (Option 1)
+Server Logger
 
-This is a ready-to-run starter for a **server communications logging app**. It includes:
+This is a  **server communications logging app**. It includes:
 
 - **collector/** — FastAPI ingestion service (`POST /ingest`) with API key auth and batched inserts
 - **db/** — PostgreSQL init scripts (schema + indexes). Optional TimescaleDB step documented
-- **ui/** — Minimal Next.js dashboard scaffold (charts wired to mock API that you can point at the collector later)
+- **ui/** — Next.js dashboard
 - **vector/** — Example Vector agent config to ship real logs to the collector
-- **scripts/** — Local data generator to push sample events into the collector
+- **scripts/** — Local traffic generator to push sample events into the collector
 - **docker-compose.yml** — One command dev stack (Postgres + Collector + UI)
-- **.env.example** — Environment variables for local dev
+- **.env.example** —
 
 ## Quickstart
 
 ```bash
-# 1) Copy env and edit the values if needed
+# 1) Copy env and edit the values (if needed)
 cp .env.example .env
 
 # 2) Build and start
@@ -27,7 +27,7 @@ python3 scripts/seed.py
 #    Collector is at http://localhost:8080 (POST /ingest)
 ```
 
-> Default API key: `secret123` (from `.env.example`). Change it before internet exposure.
+> Default API key: `secret123`
 
 ---
 
