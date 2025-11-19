@@ -4,7 +4,6 @@ from fastapi import FastAPI, Header, HTTPException, BackgroundTasks, Query
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 import asyncpg
-import json
 import asyncio
 
 API_KEY = os.getenv("INGEST_API_KEY")
@@ -117,3 +116,25 @@ async def metrics_error(
     errors = row["errors"] or 0
     error_pct = (errors / total * 100) if total else 0.0
     return {"total": total, "errors": errors, "error_pct": error_pct}
+
+@app.get("/metrics/top-src")
+async def metrics_top_src(
+    minutes: int = Query(60, ge=1, le=24 * 60),
+    limit: int = Query(10, ge=1, le=100)
+):
+    end = datetime.now(timezone.utc)
+    start = end - timedelta(minutes=minutes)
+    sql = """
+    SELECT
+      COALESCE(src_ip::text, source_host) AS src,
+      count(*) AS c
+    FROM logs
+    WHERE ts BETWEEN $1 AND $2
+    GROUP BY 1
+    ORDER BY c DESC
+    LIMIT $3;
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(sql, start, end, limit)
+    data = [{"src_ip": r["src"], "c": r["c"]} for r in rows]
+    return {"rows": data}
